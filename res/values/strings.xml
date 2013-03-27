@@ -2,7 +2,31 @@
 <resources>
 
     <string name="app_name">AdaptiveAlarm</string>
-    <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-
+    
+    <string name="default_current_time">"Current time is : 00:00 "</string>
+    <string name="off">Off</string>
+    <string name="snooze">Snooze</string>
+    
+    <string name="alarm_1_prompt">Alarm 1</string>
+    <string name="alarm_2_prompt">Alarm 2</string>
+    <string name="alarm_3_prompt">Alarm 3</string>
+    <string name="alarm_4_prompt">Alarm 4</string>
+    
+    <string-array name="alarm_type_array">
+        <item>Inactive</item>
+        <item>Simple alarm</item>
+        <item>Catch a flight</item>
+        <item>Drive to event</item>
+    </string-array>
+    
+        <string name="alarm_1">Alarm 1</string>
+        <string name="alarm_2">Alarm 2</string>
+        <string name="alarm_3">Alarm 3</string>
+        <string name="alarm_4">Alarm 4</string>
+        <string name="null_time">--:-- --</string>
+        <string name="_">"  "</string>
+        <string name="default_status_string">" "</string>
+    
+    
 </resources>

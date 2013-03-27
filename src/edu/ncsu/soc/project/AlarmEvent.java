@@ -2,7 +2,7 @@ package edu.ncsu.soc.project;
 
 import java.util.Date;
 
-/** 
+/**
  * context aware alarm event    
  * @author snellenbach
  *
@@ -32,8 +32,6 @@ public abstract class AlarmEvent {
 		this.minPrepTime = minPrepTime;
 		
 		this.currentPrepTime = initialPrepTime;     // prep time starts with the optimal value
-		this.updateCurrentAlarmTime();              // initialize the alarm time
-		this.initialAlarmTime = currentAlarmTime;   // store the initially predicted alarm time so changes can be tracked
 		this.lastUpdateTime = new Date();           // last update time is init time
 		this.alarmChangeReason = "";                // no update so far
 		
@@ -56,7 +54,8 @@ public abstract class AlarmEvent {
 	 */
 	public String getEventName() {
 		return this.eventName;
-	}	
+	}
+	
 	/**
 	 * return the currently set alarm time for this event 
 	 */
@@ -65,9 +64,11 @@ public abstract class AlarmEvent {
 	}
 	
 	/**
-	 * update the currently set alarm time (can be overridden for context) 
+	 * return the initially set alarm time for this event 
 	 */
-	public abstract void updateCurrentAlarmTime();
+	public Date getInitialAlarmTime() {
+		return this.initialAlarmTime;
+	}
 	
 	/**
 	 * return a text string containing reason for a change in current alarm 
@@ -75,6 +76,11 @@ public abstract class AlarmEvent {
 	public String getCurrentChangeReason() {
 		return this.alarmChangeReason;
 	}
+	
+	/**
+	 * update the currently set alarm time (can be overridden for context) 
+	 */
+	public abstract void updateCurrentAlarmTime();
 	
 	/**
 	 * return true if alarm is active (when present time is beyond currentAlarmTime
