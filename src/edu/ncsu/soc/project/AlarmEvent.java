@@ -2,7 +2,7 @@ package edu.ncsu.soc.project;
 
 import java.util.Date;
 
-/**
+/** 
  * context aware alarm event    
  * @author snellenbach
  *
