@@ -22,7 +22,7 @@ public class FlightAlarmEvent extends AlarmEvent {
 	public void updateCurrentAlarmTime() {
 		Date currentFlightTime = DateUtils.addHours(new Date(), 10);  // TODO get actual value from flight Agent
 		
-		FlightAgent agent = new FlightAgent();
+		FlightAgent agent = FlightAgent.getInstance();
 		Date estimatedFlightTime = agent.getDepartureTime(flightNumber);
 		
 		// TODO add call to flightAgent that returns currently scheduled time for specified flight number

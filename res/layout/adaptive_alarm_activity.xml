@@ -27,12 +27,48 @@
         android:layout_below="@+id/snooze_button"
         android:text="@string/off" />
 
+	    <TableLayout
+	        android:id="@+id/tableLayout0"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+    	    android:layout_below="@+id/off_button">
+
+	        <TableRow
+	            android:id="@+id/tableRow0"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+				<Button
+	    			android:id="@+id/btnPreferences"
+	    			android:text="Preferences"
+	 	 			android:layout_width="wrap_content" 
+	  			  	android:layout_below="@+id/off_button"
+				    android:layout_height="wrap_content" />
+		    
+				<EditText  
+				    android:id="@+id/flightNumber"  
+				    android:layout_width="100dip" 
+					android:text="AAL174"
+	    			android:layout_below="@+id/btnPreferences"
+	   				android:layout_height="wrap_content" />
+   
+				<Button
+	    			android:id="@+id/btnDisplayFlight"
+	   				android:text="Check"
+	    			android:layout_width="wrap_content" 
+	    			android:layout_below="@+id/flightNumber"
+	    			android:layout_height="wrap_content" />
+    
+			</TableRow>
+	</TableLayout>
+
     <TableLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/off_button"
-        android:layout_marginTop="59dp" >
+        android:layout_below="@+id/tableLayout0"
+        >
 
         <TableRow
             android:id="@+id/tableRow1"

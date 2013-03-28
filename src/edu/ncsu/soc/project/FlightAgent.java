@@ -27,16 +27,40 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 public class FlightAgent {
-	private static String fxml_host = "flightxml.flightaware.com";
-	private static String fxml_url = "/json/FlightXML2/";
-	private static String username = "username";
-	private static String apiKey = "password";
+	private static final String fxml_host = "flightxml.flightaware.com";
+	private static final String fxml_url = "/json/FlightXML2/";
+	private static Context context;
 	
+	public static FlightAgent instance = null;
+	
+	private FlightAgent() {
+	}
+	
+	public static FlightAgent getInstance() {
+		if (instance == null)
+			instance = new FlightAgent();
+		return instance;
+	}
+
+	public static void setContext(Context context) {
+		FlightAgent.context = context;
+	}
+
 	public Date getDepartureTime(String ident) 
 	{
+    	SharedPreferences appPrefs = 
+        		context.getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);    	
+        String username = appPrefs.getString("flightawareUsername", "");
+        String apiKey = appPrefs.getString("flightawareApiKey", "");
+
+        if (username == null || username.length() == 0 || apiKey == null || apiKey.length() == 0)
+        	return null;
+        
         HttpHost targetHost = new HttpHost(fxml_host, 80, "http");
 
 		HttpEntity entity = null;

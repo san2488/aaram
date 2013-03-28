@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen 
+    xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+    <PreferenceCategory android:title="Flightaware Account">
+        <EditTextPreference
+            android:summary="Enter your Flightaware username"
+            android:title="Username"
+            android:key="flightawareUsername" 
+            android:name="EditText"/>  
+        <EditTextPreference
+            android:summary="Enter your Flightaware API key"
+            android:title="API Key"
+            android:key="flightawareApiKey" 
+            android:name="EditText"/>  
+    </PreferenceCategory>  
+ 
+</PreferenceScreen>

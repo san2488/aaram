@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -18,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +55,41 @@ public class AdaptiveAlarmActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.adaptive_alarm_activity);
-		
+
+		// set context on the flight agent so it can access the preferences
+		FlightAgent.setContext(this);
+
+        Button btnPreferences = (Button) findViewById(R.id.btnPreferences);
+        btnPreferences.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	Intent i = new Intent("edu.ncsu.soc.project.AppPreferenceActivity");
+               startActivity(i);
+            }
+        });
+
+        Button btnDisplayFlight = (Button) findViewById(R.id.btnDisplayFlight);
+        btnDisplayFlight.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	String msg = null;
+            	SharedPreferences appPrefs = 
+                		getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);    	
+                String username = appPrefs.getString("flightawareUsername", "");
+                String apiKey = appPrefs.getString("flightawareApiKey", "");            	
+                if (username == null || username.length() == 0 || apiKey == null || apiKey.length() == 0) {
+                	msg = "Please set your Preferences";
+                }
+                else {
+                	msg = "No Results";
+                	FlightAgent agent = FlightAgent.getInstance();
+                	Date flightTime = agent.getDepartureTime(((EditText)findViewById(R.id.flightNumber)).getText().toString());
+                	if (flightTime != null) {
+                		msg = flightTime.toString();
+                	}
+                }
+                Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
+            }
+        });
+       
 		// Initialize widgets     
 		textView1 = (TextView) findViewById(R.id.textView1); 
 
@@ -73,6 +110,9 @@ public class AdaptiveAlarmActivity extends Activity {
 
 		// thread to update context info
 		am = new AlarmModel();
+
+//		FlightAgent agent = new FlightAgent();
+//		agent.getDepartureTime("RPA4881");
 		
 		// handler to process periodic callbacks
 		uiCallback = new Handler () {
