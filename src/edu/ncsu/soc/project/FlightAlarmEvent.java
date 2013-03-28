@@ -21,6 +21,10 @@ public class FlightAlarmEvent extends AlarmEvent {
 	@Override
 	public void updateCurrentAlarmTime() {
 		Date currentFlightTime = DateUtils.addHours(new Date(), 10);  // TODO get actual value from flight Agent
+		
+		FlightAgent agent = new FlightAgent();
+		Date estimatedFlightTime = agent.getDepartureTime(flightNumber);
+		
 		// TODO add call to flightAgent that returns currently scheduled time for specified flight number
 		//Log.d(getClass().getSimpleName(), "init=" + this.initialEventTime + ", prep=" + this.currentPrepTime+ ", before=" + this.timeBeforeFlight);   // TODO fix output/display
 		//Log.d(getClass().getSimpleName(), "init=" + DateUtils.toDateTime1(this.initialEventTime));   // TODO fix output/display
