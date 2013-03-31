@@ -21,7 +21,6 @@ public class AlarmModel {
 	private Boolean currentlyActive = false;   // indication that  user is active / use userActivityAgent to set this
 
 	private ArrayList<AlarmEvent> alarmEvents = new ArrayList<AlarmEvent>();     // list of active alarms
-
 	/**
 	 * 
 	 */

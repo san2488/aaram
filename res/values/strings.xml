@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">AdaptiveAlarm</string>
+    <string name="app_name">Adaptive Alarm</string>
     <string name="menu_settings">Settings</string>
     
     <string name="default_current_time">"Current time is : 00:00 "</string>
@@ -27,6 +27,7 @@
         <string name="null_time">--:-- --</string>
         <string name="_">"  "</string>
         <string name="default_status_string">" "</string>
+        <string name="bluetooth_service">UserBluetoothService</string>
     
     
 </resources>
