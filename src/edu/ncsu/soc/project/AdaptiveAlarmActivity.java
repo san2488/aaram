@@ -38,7 +38,7 @@ public class AdaptiveAlarmActivity extends Activity {
 	static final int SETUP_TRAVEL_ACTIVITY = 2;
 	
 	// period of timer that checks for event context changes (in minutes)
-	static final int eventTimerPeriod = 2;
+	static final int defaultEventTimerPeriod = 30;
 	
 	// timer threads
 	Thread uiUpdateThread, eventUpdateThread;
@@ -144,7 +144,7 @@ public class AdaptiveAlarmActivity extends Activity {
 		
 		// create separate threads for periodic updates
 		uiUpdateThread = runTimeUpdateTimer();  // timer for current time update
-		eventUpdateThread = runAlarmUpdateTimer(eventTimerPeriod);  // timer for event context updates  TODO - should use AlarmManager vs a handler here
+		eventUpdateThread = runAlarmUpdateTimer(defaultEventTimerPeriod);  // timer for event context updates  TODO - should use AlarmManager vs a handler here
 		
 		// add listeners to buttons, spinners
 		addListenerOnSnoozeButton();
@@ -257,9 +257,9 @@ public class AdaptiveAlarmActivity extends Activity {
 	
 		
 	/** create a thread that periodically wakes for update of current time display 
-	 * @param int period - timer period in minutes
 	 */
-	private Thread runAlarmUpdateTimer(final int period) {
+	private Thread runAlarmUpdateTimer(final int defaultPeriod) {
+		
 		// create a thread to handle time display updates
 		Thread timer = new Thread() {
 		    public void run () {
@@ -267,8 +267,12 @@ public class AdaptiveAlarmActivity extends Activity {
 		        while (!Thread.currentThread().isInterrupted() && !sleepInterrupt) {
 		            // do stuff in a separate thread
 		            uiCallback.sendEmptyMessage(EVENT_TIMER_MSG);
+		        	SharedPreferences appPrefs = 
+		            		getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);    	
+		            final int eventTimerPeriod = Integer.parseInt(appPrefs.getString("eventTimerPeriod", Integer.toString(defaultPeriod)));
+		            
 		            try {
-						Thread.sleep(period*60*1000);  
+						Thread.sleep(eventTimerPeriod*60*1000);  
 					} catch (InterruptedException e) {
 						sleepInterrupt=true;
 						   //throw new RuntimeException("Event Update Timer Interrupted",e);  // throw an unchecked exc to exit run

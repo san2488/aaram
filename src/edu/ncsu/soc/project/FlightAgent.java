@@ -91,7 +91,7 @@ public class FlightAgent {
 		httpclient.addRequestInterceptor(preemptiveAuth, 0);
 		HttpGet httpget = new HttpGet(fxml_url + "FlightInfoEx?ident="+ident+"&howMany=1&offset=0");
         
-        Log.e(getClass().getSimpleName(), "executing request: " + targetHost + httpget.getRequestLine());
+        Log.d(getClass().getSimpleName(), "executing request: " + targetHost + httpget.getRequestLine());
         
 		StringBuilder sb = null;
 		try {
@@ -116,6 +116,8 @@ public class FlightAgent {
             // immediate deallocation of all system resources
             httpclient.getConnectionManager().shutdown();
 		}
+		
+//		Log.d(getClass().getSimpleName(), sb.toString());
 		
 		/*
 		 Sample JSON output:

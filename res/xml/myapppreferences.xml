@@ -12,6 +12,11 @@
             android:summary="Enter your Flightaware API key"
             android:title="API Key"
             android:key="flightawareApiKey" 
+            android:name="EditText"/>           
+        <EditTextPreference
+            android:summary="How often agents update alarms"
+            android:title="Update frequency (mins)"
+            android:key="eventTimerPeriod" 
             android:name="EditText"/>  
     </PreferenceCategory>  
  
