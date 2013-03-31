@@ -26,13 +26,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class AdaptiveAlarmActivity extends Activity {
-	private Handler uiCallback;
+	private static Handler uiCallback;
+	static final int UI_TIMER_MSG = 1;
+	static final int EVENT_TIMER_MSG = 2;
+
 	private AlarmModel am;
 	
 	// child activity ids
-	static final int SET_SIMPLE_ACTIVITY = 0;
-	static final int SET_FLIGHT_ACTIVITY = 0;
-	static final int SET_TRAVEL_ACTIVITY = 0;
+	static final int SETUP_SIMPLE_ACTIVITY = 0;
+	static final int SETUP_FLIGHT_ACTIVITY = 1;
+	static final int SETUP_TRAVEL_ACTIVITY = 2;
+	
+	// period of timer that checks for event context changes (in minutes)
+	static final int eventTimerPeriod = 2;
+	
+	// timer threads
+	Thread uiUpdateThread, eventUpdateThread;
 	
 	// widgets
 	private TextView textView1;
@@ -44,13 +53,18 @@ public class AdaptiveAlarmActivity extends Activity {
 	private Button snoozeButton;
 	private Button offButton;
 	
-	private Boolean showActiveAlarmBG1 = false;
-	private Boolean showActiveAlarmBG2 = false;
-	private Boolean showActiveAlarmBG3 = false;
-	private Boolean showActiveAlarmBG4 = false;
 	
 	private Spinner spinner1, spinner2, spinner3, spinner4;
+	static final int SPINNER_ID_INACTIVE = 0;
+	static final int SPINNER_ID_SIMPLE = 1;
+	static final int SPINNER_ID_FLIGHT = 2;
+	static final int SPINNER_ID_TRAVEL = 3;
+
+	private Boolean blink = false;  // active alarm blink indicator
+	int setupEventIndex;   
 	
+	/** create the AdaptiveAlarmActivity
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -67,28 +81,6 @@ public class AdaptiveAlarmActivity extends Activity {
             }
         });
 
-        Button btnDisplayFlight = (Button) findViewById(R.id.btnDisplayFlight);
-        btnDisplayFlight.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	String msg = null;
-            	SharedPreferences appPrefs = 
-                		getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);    	
-                String username = appPrefs.getString("flightawareUsername", "");
-                String apiKey = appPrefs.getString("flightawareApiKey", "");            	
-                if (username == null || username.length() == 0 || apiKey == null || apiKey.length() == 0) {
-                	msg = "Please set your Preferences";
-                }
-                else {
-                	msg = "No Results";
-                	FlightAgent agent = FlightAgent.getInstance();
-                	Date flightTime = agent.getDepartureTime(((EditText)findViewById(R.id.flightNumber)).getText().toString());
-                	if (flightTime != null) {
-                		msg = flightTime.toString();
-                	}
-                }
-                Toast.makeText(getBaseContext(), msg, Toast.LENGTH_LONG).show();
-            }
-        });
        
 		// Initialize widgets     
 		textView1 = (TextView) findViewById(R.id.textView1); 
@@ -110,15 +102,12 @@ public class AdaptiveAlarmActivity extends Activity {
 
 		// thread to update context info
 		am = new AlarmModel();
-
-//		FlightAgent agent = new FlightAgent();
-//		agent.getDepartureTime("RPA4881");
 		
 		// handler to process periodic callbacks
 		uiCallback = new Handler () {
 		    public void handleMessage (Message msg) {
 		        // update the displayed time
-				if (msg.what == 1) {
+				if (msg.what == UI_TIMER_MSG) {
 					textView1.setText("Current time is " + DateUtils.toSimpleTime(new Date()));  // update displayed current time
 					
 					textViewSetTime1.setText(am.getCurrentAlarmTimeString(1));  // update current time for alarm 1
@@ -127,18 +116,15 @@ public class AdaptiveAlarmActivity extends Activity {
 					textViewSetTime4.setText(am.getCurrentAlarmTimeString(4));  // update current time for alarm 4
 
 					// toggle bg color of active alarms
-					showActiveAlarmBG1 = am.alarmActive(1) && !showActiveAlarmBG1;
-					showActiveAlarmBG2 = am.alarmActive(2) && !showActiveAlarmBG2;
-					showActiveAlarmBG3 = am.alarmActive(3) && !showActiveAlarmBG3;
-					showActiveAlarmBG4 = am.alarmActive(4) && !showActiveAlarmBG4;
-					if (showActiveAlarmBG1) textViewSetTime1.setBackgroundColor(0xFFFF0000);  // update background time for alarm 1 if active
-					else textViewSetTime1.setBackgroundColor(0xFFFFFFFF);
-					if (showActiveAlarmBG2) textViewSetTime2.setBackgroundColor(0xFFFF0000);  // update background time for alarm 1 if active
-					else textViewSetTime2.setBackgroundColor(0xFFFFFFFF);
-					if (showActiveAlarmBG3) textViewSetTime3.setBackgroundColor(0xFFFF0000);  // update background time for alarm 1 if active
-					else textViewSetTime3.setBackgroundColor(0xFFFFFFFF);
-					if (showActiveAlarmBG4) textViewSetTime4.setBackgroundColor(0xFFFF0000);  // update background time for alarm 1 if active
-					else textViewSetTime4.setBackgroundColor(0xFFFFFFFF);
+					blink = !blink;
+					if (am.alarmActive(1) && blink) textViewSetTime1.setBackgroundColor(0xFFFF0000);  // update background time for alarm 1 if active
+					else textViewSetTime1.setBackgroundColor(0x00FFFFFF);
+					if (am.alarmActive(2) && blink) textViewSetTime2.setBackgroundColor(0xFFFF0000);  // update background time for alarm 2 if active
+					else textViewSetTime2.setBackgroundColor(0x00FFFFFF);
+					if (am.alarmActive(3) && blink) textViewSetTime3.setBackgroundColor(0xFFFF0000);  // update background time for alarm 3 if active
+					else textViewSetTime3.setBackgroundColor(0x00FFFFFF);
+					if (am.alarmActive(4) && blink) textViewSetTime4.setBackgroundColor(0xFFFF0000);  // update background time for alarm 4 if active
+					else textViewSetTime4.setBackgroundColor(0x00FFFFFF);
 					
 					textViewStatus1.setText(am.getCurrentChangeReason(1));  // update change reason for alarm 1
 					textViewStatus2.setText(am.getCurrentChangeReason(2));  // update change reason for alarm 2
@@ -150,15 +136,15 @@ public class AdaptiveAlarmActivity extends Activity {
 					textViewInit3.setText("Was " + am.getInitialAlarmTimeString(3));  // update initial time for alarm 3
 					textViewInit4.setText("Was " + am.getInitialAlarmTimeString(4));  // update initial time for alarm 4
 				}
-				else if (msg.what == 2) {
+				else if (msg.what == EVENT_TIMER_MSG) {
 					am.updateAlarms();   // update context status of all alarms and get alarm state
 				}
 		    }
 		};
 		
 		// create separate threads for periodic updates
-		Thread th1 = runTimeUpdateTimer();  // timer for current time update
-		Thread th2 = runAlarmUpdateTimer();  // timer for event context updates  TODO - should use AlarmManager vs a handler here
+		uiUpdateThread = runTimeUpdateTimer();  // timer for current time update
+		eventUpdateThread = runAlarmUpdateTimer(eventTimerPeriod);  // timer for event context updates  TODO - should use AlarmManager vs a handler here
 		
 		// add listeners to buttons, spinners
 		addListenerOnSnoozeButton();
@@ -168,15 +154,15 @@ public class AdaptiveAlarmActivity extends Activity {
 		addListenerOnSpinnerItemSelection(3, spinner3, R.id.spinner3);
 		addListenerOnSpinnerItemSelection(4, spinner4, R.id.spinner4);
 		
-		/* TODO a bunch of test code creating alarms...
-		am.addAlarmEvent(1, new StaticAlarmEvent("Alarm 1", new Date(), 0, 0));   // add a static alarm w/ no prep time
-		am.addAlarmEvent(2, new StaticAlarmEvent("Alarm 2", DateUtils.addMinutes(new Date(), 1), 0, 0));   // add a static alarm at + 1 minutes
-		AlarmEvent aEvent3 = new StaticAlarmEvent("Alarm 3", DateUtils.addSeconds(new Date(), 30*60 + 1), 30, 10);
-		am.addAlarmEvent(3, aEvent3);   // add a static alarm at + 1 seconds w/ 30 mins prep time allowing snooze
-		
-		AlarmEvent aEvent4 = new FlightAlarmEvent("Alarm 4", DateUtils.addHours(new Date(), 10), 30, 10, "DL200", 0);
-		am.addAlarmEvent(4, aEvent4);   // add a flight alarm event in 10 hrs w/ 30 mins prep time
-		*/				
+	}
+	
+	/** destroy the AdaptiveAlarmActivity - close down threads by interrupting
+	 */
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		uiUpdateThread.interrupt();
+		eventUpdateThread.interrupt();
 	}
 
 	@Override
@@ -186,12 +172,60 @@ public class AdaptiveAlarmActivity extends Activity {
 		return true;
 	}
 	
+	/** process return info from setup activities and create appropriate alarm events
+	 * 
+	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == SET_SIMPLE_ACTIVITY) {
-		
-			if (resultCode == RESULT_OK) {                 
-				//startActivity(new Intent(Intent.ACTION_VIEW, data));         // TODO temp code
+		//Log.d(getClass().getSimpleName(), "--- return callback req=" + requestCode + " rc=" + resultCode);   
+		if (resultCode == RESULT_OK) {
+			
+			Bundle extras = data.getExtras();  // get info returned from setup activities
+			if (extras != null) {
+				// create a simple alarm event
+				if (requestCode == SETUP_SIMPLE_ACTIVITY) {                 
+					int alarmTimeHour = extras.getInt("alarmTimeHour");
+					int alarmTimeMinute = extras.getInt("alarmTimeMinute");
+					int snoozeLimit = extras.getInt("snoozeLimit");
+					//Log.d(getClass().getSimpleName(), "--- returning time=" + alarmTimeHour + ":" + alarmTimeMinute + " snooze=" + snoozeLimit);   
+					// check for valid time and snooze limit value  
+					Date initDate = DateUtils.getNewDateFromTime(alarmTimeHour, alarmTimeMinute);
+					// create a simple alarm event based in inputs  (prep time is set to max snooze time)
+					AlarmEvent aEvent = new StaticAlarmEvent("Simple Alarm", DateUtils.addMinutes(initDate, snoozeLimit), snoozeLimit, 0); 
+	                Toast.makeText(getBaseContext(), "New Simple Alarm Created", Toast.LENGTH_LONG).show();
+					am.addAlarmEvent(setupEventIndex, aEvent);
+				}
+				// create a flight alarm event
+				else if (requestCode == SETUP_FLIGHT_ACTIVITY) {                 
+					// TODO extract return info and create a flight event
+					int flightTimeYear = extras.getInt("flightTimeYear");  
+					int flightTimeMonth = extras.getInt("flightTimeMonth");  
+					int flightTimeDay = extras.getInt("flightTimeDay");  
+					int alarmTimeHour = extras.getInt("flightTimeHour");  
+					int flightTimeHour = extras.getInt("flightTimeMinute");  
+					String flightNumber = extras.getString("flightNumber");  
+					int prepTime = extras.getInt("prepTime");  
+					int minPrepTime = extras.getInt("minPrepTime");  
+					// recreate the flight time
+					Date flightTime = new Date();
+					flightTime.setYear(flightTimeYear); 
+					flightTime.setMonth(flightTimeMonth);  
+					flightTime.setDate(flightTimeDay);  
+					flightTime.setHours(alarmTimeHour);  
+					flightTime.setMinutes(flightTimeHour); 
+					//Log.d(getClass().getSimpleName(), "--- returning time=" + flightTime.toString());   
+					// create the alarm
+					AlarmEvent aEvent = new FlightAlarmEvent("Flight Alarm", flightTime, prepTime, minPrepTime, flightNumber);
+	                Toast.makeText(getBaseContext(), "New Flight Alarm Created", Toast.LENGTH_LONG).show();
+					am.addAlarmEvent(setupEventIndex, aEvent);   
+				}
+				// create a travel alarm event
+				if (requestCode == SETUP_TRAVEL_ACTIVITY) {                 
+					// TODO extract return info and create a travel event
+					//AlarmEvent aEvent = new TravelAlarmEvent("Alarm y", DateUtils.addHours(new Date(), 10), 30, 30, "From address", "To address");
+					//am.addAlarmEvent(alarmEventIndex, aEvent);   // add a drive alarm event in 2 hrs w/ 30 mins prep time and no snooze allowed
+				}
 			}
+		
 		}
 	}
 	
@@ -202,16 +236,19 @@ public class AdaptiveAlarmActivity extends Activity {
 		// create a thread to handle time display updates
 		Thread timer = new Thread() {
 		    public void run () {
-		        for (;;) {
+		    	boolean sleepInterrupt = false;
+		    	while (!Thread.currentThread().isInterrupted() && !sleepInterrupt) {
 		            // do stuff in a separate thread
-		            uiCallback.sendEmptyMessage(1);
+		            uiCallback.sendEmptyMessage(UI_TIMER_MSG);
 		            try {
 						Thread.sleep(1000);  // 1 second update
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						sleepInterrupt=true;
+						   //throw new RuntimeException("UI Update Timer Interrupted",e);  // throw an unchecked exc to exit run
 					}    
 		        }
+				Log.d(getClass().getSimpleName(), "--- exiting ui update thread");   
+
 		    }
 		};
 		timer.start();
@@ -220,22 +257,25 @@ public class AdaptiveAlarmActivity extends Activity {
 	
 		
 	/** create a thread that periodically wakes for update of current time display 
-	 * 
+	 * @param int period - timer period in minutes
 	 */
-	private Thread runAlarmUpdateTimer() {
+	private Thread runAlarmUpdateTimer(final int period) {
 		// create a thread to handle time display updates
 		Thread timer = new Thread() {
 		    public void run () {
-		        for (;;) {
+		    	boolean sleepInterrupt = false;
+		        while (!Thread.currentThread().isInterrupted() && !sleepInterrupt) {
 		            // do stuff in a separate thread
-		            uiCallback.sendEmptyMessage(2);
+		            uiCallback.sendEmptyMessage(EVENT_TIMER_MSG);
 		            try {
-						Thread.sleep(60*1000);  // 1 min update
+						Thread.sleep(period*60*1000);  
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						sleepInterrupt=true;
+						   //throw new RuntimeException("Event Update Timer Interrupted",e);  // throw an unchecked exc to exit run
 					}    
 		        }
+				Log.d(getClass().getSimpleName(), "--- exiting event update thread");   
+
 		    }
 		};
 		timer.start();
@@ -248,8 +288,10 @@ public class AdaptiveAlarmActivity extends Activity {
  
 			@Override
 			public void onClick(View arg0) {
-				 Log.d(getClass().getSimpleName(), "--- snooze button clicked");   // TODO fix output/display
+				 Log.d(getClass().getSimpleName(), "--- snooze button clicked");   
 				 am.hitSnooze();
+	             Toast.makeText(getBaseContext(), "All active alarms snoozed", 
+	                        Toast.LENGTH_SHORT).show();
 			}
  
 		});
@@ -262,8 +304,10 @@ public class AdaptiveAlarmActivity extends Activity {
  
 			@Override
 			public void onClick(View arg0) {
-				 Log.d(getClass().getSimpleName(), "--- off button clicked");   // TODO fix output/display, also add verification of disable?
+				 Log.d(getClass().getSimpleName(), "--- off button clicked");   
 				 am.hitOff();
+	             Toast.makeText(getBaseContext(), "All active alarms deactivated", 
+	                        Toast.LENGTH_SHORT).show();
 			}
  
 		});
@@ -289,31 +333,33 @@ public class AdaptiveAlarmActivity extends Activity {
 	                //Toast.makeText(getBaseContext(), "You have selected : " +sel[alarmEventType], 
 	                //        Toast.LENGTH_SHORT).show();
 	                
-	                if (alarmEventType==0) {  // Inactive 
-	                	am.deactivateAlarm(alarmEventIndex);
+	                if (alarmEventType==SPINNER_ID_INACTIVE) {  // Inactive 
+	                	if (am.alarmExists(alarmEventIndex)) {
+		                	am.deactivateAlarm(alarmEventIndex);
+		                    Toast.makeText(getBaseContext(), "Alarm " + alarmEventIndex + " deactivated", 
+		                            Toast.LENGTH_SHORT).show();
+	                	}
 	                }
-	                else if (alarmEventType==1) {  // Simple alarm 
-	                	// TODO - launch simple alarm event entry screen here
-	                	//Intent myIntent = new Intent(AdaptiveAlarmActivity.this, NextActivity.class);
-	                	//AdaptiveAlarmActivity.this.startActivityForResult(myIntent, SET_SIMPLE_ACTIVITY);	                	
-	                	AlarmEvent aEvent = new StaticAlarmEvent("Alarm x", DateUtils.addSeconds(new Date(), 30*60 + 1), 30, 10);
-	            		am.addAlarmEvent(alarmEventIndex, aEvent);   // add a static alarm at + 1 seconds w/ 30 mins prep time allowing snooze
-	                }
-	                else if (alarmEventType==2) {  // Flight alarm 
-	                	// TODO - launch flight alarm event entry screen here
-	            		AlarmEvent aEvent = new FlightAlarmEvent("Alarm z", DateUtils.addHours(new Date(), 10), 30, 10, "DL200", 0);
-	            		am.addAlarmEvent(alarmEventIndex, aEvent);   // add a flight alarm event in 10 hrs w/ 30 mins prep time
-	                }
-	                else if (alarmEventType==3) {  // Travel alarm 
-	                	// TODO - launch travel alarm event entry screen here
-	            		AlarmEvent aEvent = new TravelAlarmEvent("Alarm y", DateUtils.addHours(new Date(), 10), 30, 30, "From address", "To address");
-	            		am.addAlarmEvent(alarmEventIndex, aEvent);   // add a drive alarm event in 2 hrs w/ 30 mins prep time and no snooze allowed
+	                // only create a new alarm event if one doesnt exist
+	                else if (!am.alarmExists(alarmEventIndex)) {
+	                	setupEventIndex = alarmEventIndex;
+	                    if (alarmEventType==SPINNER_ID_SIMPLE) {  // Simple alarm 
+	                        	Intent myIntent = new Intent(AdaptiveAlarmActivity.this, SetupSimpleActivity.class);  // go to simple alarm screen
+	                            AdaptiveAlarmActivity.this.startActivityForResult(myIntent, SETUP_SIMPLE_ACTIVITY);	                	
+	                            }
+	                    else if (alarmEventType==SPINNER_ID_FLIGHT) {  // Flight alarm 
+	                        Intent myIntent = new Intent(AdaptiveAlarmActivity.this, SetupFlightActivity.class);  // go to flight alarm screen
+	                        AdaptiveAlarmActivity.this.startActivityForResult(myIntent, SETUP_FLIGHT_ACTIVITY);	                	
+	                        }
+	                    else if (alarmEventType==SPINNER_ID_TRAVEL) {  // Travel alarm 
+	                        Intent myIntent = new Intent(AdaptiveAlarmActivity.this, SetupTravelActivity.class);  // go to travel alarm screen
+	                        AdaptiveAlarmActivity.this.startActivityForResult(myIntent, SETUP_TRAVEL_ACTIVITY);	                	
+	                        }
 	                }
 	                
 	            }
 
 	            public void onNothingSelected(AdapterView<?> arg0) {
-	                // TODO - if alarm is active then edit settings
 	                
 	            }
 	                      

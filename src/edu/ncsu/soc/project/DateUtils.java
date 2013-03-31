@@ -84,5 +84,42 @@ public class DateUtils {
     	sdf.setTimeZone(TimeZone.getTimeZone(location));
         return sdf.format(date);
     }
+
+    /** return a date within the next 24 hrs given an hour and minute in 24h format for current timezone
+     * 
+     * @param alarmTimeHour
+     * @param alarmTimeMinutes
+     * @return
+     */
+	public static Date getNewDateFromTime(int alarmTimeHour, int alarmTimeMinutes) {
+	      Calendar cal = Calendar.getInstance();
+	      cal.clear(); 
+	      cal.setTimeZone(TimeZone.getTimeZone(location));
+	      Date currentDate = new Date();
+	      cal.setTime( currentDate );  // start with current date
+	      cal.set(Calendar.HOUR_OF_DAY, alarmTimeHour);
+	      cal.set(Calendar.MINUTE, alarmTimeMinutes);
+	      cal.set(Calendar.SECOND, 0);
+	      cal.set(Calendar.MILLISECOND, 0);
+	      // add a day if the time created isn't in the future
+	      Date retDate = cal.getTime();
+	      if (retDate.before(currentDate)) retDate = DateUtils.addDays(retDate, 1);
+	      return retDate;
+	}
+
+	/** compare 2 dates and return true if within specified minutes
+	 * 
+	 * @param oldAlarmTime
+	 * @param currentAlarmTime
+	 * @param mins - max separation for true result in minutes
+	 * @return
+	 */
+	public static boolean datesRoughlyEqual(Date oldAlarmTime,
+			Date currentAlarmTime, int mins) {
+		if ((oldAlarmTime==null) || (currentAlarmTime==null)) return true;
+		Date lowBound = DateUtils.addMinutes(oldAlarmTime, mins * -1);
+		Date highBound = DateUtils.addMinutes(oldAlarmTime, mins);
+		return (currentAlarmTime.after(lowBound) && currentAlarmTime.before(highBound));
+	}
  
 }
