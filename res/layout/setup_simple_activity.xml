@@ -1,0 +1,87 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/LightSkyBlue"
+    tools:context=".MainActivity" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/default_event_prompt"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	    <TableLayout
+	        android:id="@+id/tableLayout1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+            android:layout_marginTop="30dp"
+	        android:layout_below="@+id/textView1" >
+
+	        <TableRow
+	            android:id="@+id/TableRow1"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+            	<TextView
+                	android:id="@+id/AlarmTimePrompt"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="Alarm Time:"
+                	android:textAppearance="?android:attr/textAppearanceMedium" />
+       
+			</TableRow>
+			
+      <TimePicker
+          android:id="@+id/timePicker1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="33dp"
+          android:layout_marginTop="28dp" />	
+          		
+	        <TableRow
+	            android:id="@+id/TableRow2"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+            	<TextView
+                	android:id="@+id/snoozeLimitPrompt"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="Max snooze time allowed:"
+                	android:textAppearance="?android:attr/textAppearanceMedium" />
+	            		    
+				<EditText
+				    android:id="@+id/snoozeLimit"  
+				    android:inputType="number"
+				    android:text="0"
+				    android:layout_width="60dip" 
+	   				android:layout_height="wrap_content" />
+       
+			</TableRow>
+			
+	  </TableLayout>
+
+      <Button
+          android:id="@+id/btnPreferences"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_below="@+id/btnCreateAlarm"
+          android:layout_marginTop="20dp"
+          android:text="@string/preferences" />
+
+      <Button
+          android:id="@+id/btnCreateAlarm"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_below="@+id/tableLayout1"
+          android:layout_marginTop="20dp"
+          android:text="@string/create_alarm" />
+    
+</RelativeLayout>

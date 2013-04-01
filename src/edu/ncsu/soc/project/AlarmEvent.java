@@ -83,14 +83,14 @@ public abstract class AlarmEvent {
 	public abstract void updateCurrentAlarmTime();
 	
 	/**
-	 * return true if alarm is active (when present time is beyond currentAlarmTime
+	 * return true if alarm is active (when present time is beyond currentAlarmTime)
 	 */
 	public Boolean alarmActive() {
 		Date dNow = new Date( );   // get current date/time
 		Boolean retAlarm = currentAlarmTime.before(dNow);
 		return retAlarm;
 	}
-	
+		
 	/**
 	 * delay the alarm by specified number of minutes if sufficient prep time exists
 	 */

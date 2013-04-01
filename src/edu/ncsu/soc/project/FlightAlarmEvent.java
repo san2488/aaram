@@ -7,25 +7,37 @@ import android.util.Log;
 
 public class FlightAlarmEvent extends AlarmEvent {
 	private String flightNumber = null;         // airline/flight number string, eg DL400
-	private Integer timeBeforeFlight = 0;     // airport arrival time before flight (also includes travel to airport?) in minutes 
-
+    private Boolean useActualAgent = true;    // if true use calls to flight service otherwise generate a response for debug
+    
 	public FlightAlarmEvent(String eventName, Date initialFlightTime,
-			Integer initialPrepTime, Integer minPrepTime, String flightNumber, Integer timeBeforeFlight) {
+			Integer initialPrepTime, Integer minPrepTime, String flightNumber) {
 		super(eventName, initialFlightTime, initialPrepTime, minPrepTime);  // set initialEventTime to initialFlightTime
 		this.flightNumber = flightNumber;
-		this.timeBeforeFlight = timeBeforeFlight;
 		this.updateCurrentAlarmTime();              // initialize the alarm time
 		this.initialAlarmTime = this.currentAlarmTime;   // store the initially predicted alarm time so changes can be tracked
 	}
 
 	@Override
 	public void updateCurrentAlarmTime() {
-		Date currentFlightTime = DateUtils.addHours(new Date(), 10);  // TODO get actual value from flight Agent
-		// TODO add call to flightAgent that returns currently scheduled time for specified flight number
-		//Log.d(getClass().getSimpleName(), "init=" + this.initialEventTime + ", prep=" + this.currentPrepTime+ ", before=" + this.timeBeforeFlight);   // TODO fix output/display
-		//Log.d(getClass().getSimpleName(), "init=" + DateUtils.toDateTime1(this.initialEventTime));   // TODO fix output/display
+		// get the updated flight time
+		Date currentFlightTime;
+		if (useActualAgent) {
+			FlightAgent agent = FlightAgent.getInstance();
+			currentFlightTime = agent.getDepartureTime(flightNumber);			
+		}
+		else {
+		    currentFlightTime = DateUtils.addHours(new Date(), 4);  // for debug, just add 4 hrs to the current time
+		}
+		//Log.d(getClass().getSimpleName(), "init=" + this.initialEventTime + ", prep=" + this.currentPrepTime);   // TODO 
 
-		this.currentAlarmTime = DateUtils.addMinutes(currentFlightTime, (this.currentPrepTime + this.timeBeforeFlight) * -1);  // subtract prep and airport time to set alarm
+		// adjust the alarm time
+		Date oldAlarmTime = this.currentAlarmTime;
+		this.currentAlarmTime = DateUtils.addMinutes(currentFlightTime, this.currentPrepTime * -1);  // subtract prep time to set alarm
+		
+		// if a time change more than 2 minutes then set reason
+		if (!DateUtils.datesRoughlyEqual(oldAlarmTime, this.currentAlarmTime, 1)) {
+			this.alarmChangeReason = "Flight time change";
+		}
 	}
 
 }

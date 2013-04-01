@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/LightSkyBlue"
     tools:context=".MainActivity" >
 
     <TextView
@@ -28,11 +29,12 @@
         android:text="@string/off" />
 
     <TableLayout
+	    android:id="@+id/alarmTableLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/off_button"
-        android:layout_marginTop="59dp" >
+        >
 
         <TableRow
             android:id="@+id/tableRow1"
@@ -259,5 +261,12 @@
             </TableRow>
         
       </TableLayout>
-
+      
+      <Button
+	    	android:id="@+id/btnPreferences"
+	    	android:text="@string/preferences"
+	 	 	android:layout_width="match_parent" 
+	  		android:layout_below="@+id/alarmTableLayout"
+			android:layout_height="wrap_content" />
+    
 </RelativeLayout>

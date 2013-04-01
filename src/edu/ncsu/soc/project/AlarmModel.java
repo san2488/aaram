@@ -67,10 +67,17 @@ public class AlarmModel {
 	 * return true if specified alarm is active 
 	 */
 	public Boolean alarmActive(int alarmEventIndex) {
-		if ((alarmEvents.get(alarmEventIndex-1)!=null) && (alarmEvents.get(alarmEventIndex-1).alarmActive())) return true;  // if an active alarm
+		if (this.alarmExists(alarmEventIndex) && (alarmEvents.get(alarmEventIndex-1).alarmActive())) return true;  // if an active alarm
 		else return false;
 	}
 	
+	/**
+	 * return true if specified alarm has been set 
+	 */
+	public Boolean alarmExists(int alarmEventIndex) {
+		return (alarmEvents.get(alarmEventIndex-1)!=null);
+	}
+
 	/**
 	 * kill an alarm event 
 	 */
