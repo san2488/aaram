@@ -101,6 +101,8 @@ public class AlarmModel {
 			   //Log.d(getClass().getSimpleName(), "Null Alarm - no update");   // TODO fix output/display
 			}
 		}
+		UserAgent ua = UserAgent.getInstance();
+		sleepDeprived = ua.isSleepDeprived();
 	}
 	
 	/** hit snooze for all active alarms

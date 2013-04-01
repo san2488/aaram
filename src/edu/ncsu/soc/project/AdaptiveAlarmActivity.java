@@ -43,7 +43,7 @@ public class AdaptiveAlarmActivity extends Activity {
 	static final int SETUP_TRAVEL_ACTIVITY = 2;
 	
 	// period of timer that checks for event context changes (in minutes)
-	static final int eventTimerPeriod = 2;
+	static final int eventTimerPeriod = 1;
 	
 	// timer threads
 	Thread uiUpdateThread, eventUpdateThread;
@@ -79,6 +79,7 @@ public class AdaptiveAlarmActivity extends Activity {
 
 		// set context on the flight agent so it can access the preferences
 		FlightAgent.setContext(this);
+		UserAgent.setContext(this);
 
         Button btnPreferences = (Button) findViewById(R.id.btnPreferences);
         btnPreferences.setOnClickListener(new View.OnClickListener() {
@@ -169,7 +170,7 @@ public class AdaptiveAlarmActivity extends Activity {
 		super.onDestroy();
 		uiUpdateThread.interrupt();
 		eventUpdateThread.interrupt();
-		UserAgent.stopUserActivityService();
+		UserAgent.getInstance().stopUserActivityService();
 	}
 
 	@Override

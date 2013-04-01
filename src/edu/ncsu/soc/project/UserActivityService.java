@@ -14,23 +14,26 @@ import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 //http://developer.android.com/guide/components/bound-services.html
 public class UserActivityService extends Service implements SensorEventListener{
-	// Binder given to clients
-    private final IBinder mBinder = new UserActivityBinder();
 
-    private final int ACCEL_THRESHOLD = 1;			//Limit at which the device is determined to have 'moved'
+    private final IBinder mBinder = new UserActivityBinder();			// Binder given to clients
+
+    private final int ACCEL_THRESHOLD = 1;								//Limit at which the device is determined to have 'moved'
     
 	private SensorManager mSensorManager;
-	private Sensor mSensor;
+	private Sensor mAccelerometer;
 	
-	private Date lastActivityTime;					//Time at which user last interacted with device
+	private static Date lastActivityTime;								//Time at which user last interacted with device
 	
+	private final static String TAG = "UserActivityService";
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		lastActivityTime = new Date();
 		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         BroadcastReceiver mReceiver = new ScreenReceiver();
@@ -40,7 +43,11 @@ public class UserActivityService extends Service implements SensorEventListener{
     @Override
     public IBinder onBind(Intent intent) {
     	mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-    	mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+    	mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+    	boolean hasAccelerometer = mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    	if(!hasAccelerometer) {
+    		Log.i(TAG, "Accelerometer unavailable. Relying on Screen lock alone for user activity.");
+    	}
         return mBinder;
     }
 
@@ -50,7 +57,7 @@ public class UserActivityService extends Service implements SensorEventListener{
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
+		// Don't need this
 		
 	}
 
@@ -91,9 +98,9 @@ public class UserActivityService extends Service implements SensorEventListener{
 	        	if(screenOff) lastActivityTime = new Date();
 	            screenOff = false;
 	        }
-	        Intent i = new Intent(context, UserActivityService.class);
-	        i.putExtra("screen_state", screenOff);
-	        context.startService(i);
+//	        Intent i = new Intent(context, UserActivityService.class);
+//	        i.putExtra("screen_state", screenOff);
+//	        context.startService(i);
 	    }
 	 
 	}
