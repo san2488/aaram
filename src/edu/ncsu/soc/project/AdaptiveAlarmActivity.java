@@ -2,13 +2,18 @@ package edu.ncsu.soc.project;
 
 import java.util.Date;
 
+import edu.ncsu.soc.project.UserActivityService.UserActivityBinder;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
@@ -63,6 +68,8 @@ public class AdaptiveAlarmActivity extends Activity {
 	private Boolean blink = false;  // active alarm blink indicator
 	int setupEventIndex;   
 	
+
+	
 	/** create the AdaptiveAlarmActivity
 	 */
 	@Override
@@ -81,7 +88,6 @@ public class AdaptiveAlarmActivity extends Activity {
             }
         });
 
-       
 		// Initialize widgets     
 		textView1 = (TextView) findViewById(R.id.textView1); 
 
@@ -163,6 +169,7 @@ public class AdaptiveAlarmActivity extends Activity {
 		super.onDestroy();
 		uiUpdateThread.interrupt();
 		eventUpdateThread.interrupt();
+		UserAgent.stopUserActivityService();
 	}
 
 	@Override

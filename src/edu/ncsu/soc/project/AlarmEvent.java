@@ -101,6 +101,10 @@ public abstract class AlarmEvent {
 			Date newTime = DateUtils.addMinutes(this.currentAlarmTime, snoozeMins);    // calculate delayed time
 			setCurrentAlarmTime(newTime, "Snooze button was hit");  // delay the alarm by snooze amount
 		}
+		else {
+			UserAgent ua = UserAgent.getInstance();
+			ua.takeSnoozeLimitAction();
+		}
 	}
 
 }
