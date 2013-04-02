@@ -2,30 +2,22 @@ package edu.ncsu.soc.project;
 
 import java.util.Date;
 
-import edu.ncsu.soc.project.UserActivityService.UserActivityBinder;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,7 +32,7 @@ public class AdaptiveAlarmActivity extends Activity {
 	// child activity ids
 	static final int SETUP_SIMPLE_ACTIVITY = 0;
 	static final int SETUP_FLIGHT_ACTIVITY = 1;
-	static final int SETUP_TRAVEL_ACTIVITY = 2;
+	static final int SETUP_TRAVEL_TIME_ACTIVITY = 2;
 	
 	// period of timer that checks for event context changes (in minutes)
 
@@ -69,7 +61,6 @@ public class AdaptiveAlarmActivity extends Activity {
 	private Boolean blink = false;  // active alarm blink indicator
 	int setupEventIndex;   
 	
-
 	
 	/** create the AdaptiveAlarmActivity
 	 */
@@ -108,7 +99,7 @@ public class AdaptiveAlarmActivity extends Activity {
 		textViewStatus3 = (TextView) findViewById(R.id.textView_status3); 
 		textViewStatus4 = (TextView) findViewById(R.id.textView_status4); 
 
-		// thread to update context info
+		// model containing alarm state
 		am = new AlarmModel();
 		
 		// handler to process periodic callbacks
@@ -191,7 +182,8 @@ public class AdaptiveAlarmActivity extends Activity {
 			Bundle extras = data.getExtras();  // get info returned from setup activities
 			if (extras != null) {
 				// create a simple alarm event
-				if (requestCode == SETUP_SIMPLE_ACTIVITY) {                 
+				if (requestCode == SETUP_SIMPLE_ACTIVITY) {  
+					// extract return info and create a simple alarm
 					int alarmTimeHour = extras.getInt("alarmTimeHour");
 					int alarmTimeMinute = extras.getInt("alarmTimeMinute");
 					int snoozeLimit = extras.getInt("snoozeLimit");
@@ -205,7 +197,7 @@ public class AdaptiveAlarmActivity extends Activity {
 				}
 				// create a flight alarm event
 				else if (requestCode == SETUP_FLIGHT_ACTIVITY) {                 
-					// TODO extract return info and create a flight event
+					// extract return info and create a flight event
 					int flightTimeYear = extras.getInt("flightTimeYear");  
 					int flightTimeMonth = extras.getInt("flightTimeMonth");  
 					int flightTimeDay = extras.getInt("flightTimeDay");  
@@ -228,10 +220,17 @@ public class AdaptiveAlarmActivity extends Activity {
 					am.addAlarmEvent(setupEventIndex, aEvent);   
 				}
 				// create a travel alarm event
-				if (requestCode == SETUP_TRAVEL_ACTIVITY) {                 
-					// TODO extract return info and create a travel event
-					//AlarmEvent aEvent = new TravelAlarmEvent("Alarm y", DateUtils.addHours(new Date(), 10), 30, 30, "From address", "To address");
-					//am.addAlarmEvent(alarmEventIndex, aEvent);   // add a drive alarm event in 2 hrs w/ 30 mins prep time and no snooze allowed
+				if (requestCode == SETUP_TRAVEL_TIME_ACTIVITY) {                 
+					// extract return info and create a simple alarm
+					int alarmTimeHour = extras.getInt("alarmTimeHour");
+					int alarmTimeMinute = extras.getInt("alarmTimeMinute");
+					String startAddress = extras.getString("startAddress");  
+					String endAddress = extras.getString("endAddress");  
+					int totalPrepTime = extras.getInt("prepTime");  
+					int minTotalPrepTime = extras.getInt("minPrepTime");  
+					Date initDate = DateUtils.getNewDateFromTime(alarmTimeHour, alarmTimeMinute);
+					AlarmEvent aEvent = new TravelTimeAlarmEvent("Travel Time Alarm", initDate, totalPrepTime, minTotalPrepTime, startAddress, endAddress);
+					am.addAlarmEvent(setupEventIndex, aEvent);   
 				}
 			}
 		
@@ -365,8 +364,8 @@ public class AdaptiveAlarmActivity extends Activity {
 	                        AdaptiveAlarmActivity.this.startActivityForResult(myIntent, SETUP_FLIGHT_ACTIVITY);	                	
 	                        }
 	                    else if (alarmEventType==SPINNER_ID_TRAVEL) {  // Travel alarm 
-	                        Intent myIntent = new Intent(AdaptiveAlarmActivity.this, SetupTravelActivity.class);  // go to travel alarm screen
-	                        AdaptiveAlarmActivity.this.startActivityForResult(myIntent, SETUP_TRAVEL_ACTIVITY);	                	
+	                        Intent myIntent = new Intent(AdaptiveAlarmActivity.this, SetupTravelTimeActivity.class);  // go to travel alarm screen
+	                        AdaptiveAlarmActivity.this.startActivityForResult(myIntent, SETUP_TRAVEL_TIME_ACTIVITY);	                	
 	                        }
 	                }
 	                

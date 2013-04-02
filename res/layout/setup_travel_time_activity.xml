@@ -1,0 +1,146 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/LightSkyBlue"
+    tools:context=".MainActivity" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:text="@string/default_event_prompt"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+	    <TableLayout
+	        android:id="@+id/travelTableLayout"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	  		android:layout_below="@+id/textView1"
+	  		android:layout_marginTop="10dp"
+	        android:layout_alignParentLeft="true" >
+
+	        <TableRow
+	            android:id="@+id/TableRow1"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+            	<TextView
+                	android:id="@+id/startAdddressPrompt"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="Start Address:"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+	            		    
+       
+			</TableRow>
+			
+				<EditText
+				    android:id="@+id/startAddress"  
+				    android:layout_width="match_parent" 
+	   				android:layout_height="wrap_content"
+	   				android:text="1000 Buckingham Way, Apex, NC"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+				
+	        <TableRow
+	            android:id="@+id/TableRow2"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+            	<TextView
+                	android:id="@+id/endAdddressPrompt"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="Event (end) Address:"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+	            		    
+       
+			</TableRow>
+			
+				<EditText
+				    android:id="@+id/endAddress"  
+				    android:layout_width="match_parent" 
+	   				android:layout_height="wrap_content"
+	   				android:text="Raleigh, NC"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+					        			
+	        <TableRow
+	            android:id="@+id/TableRowTime"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+            	<TextView
+                	android:id="@+id/travelTimePrompt"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="Event time:"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+	            		    
+       
+			</TableRow>
+			
+      <TimePicker
+          android:id="@+id/timePicker1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="33dp" />	
+	        				        
+	        <TableRow
+	            android:id="@+id/TableRowOptPrepTime"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+            	<TextView
+                	android:id="@+id/optPreTravelTimePrompt"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="Optimum pre-travel time (mins):"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+	            		    
+				<EditText
+				    android:id="@+id/optPreTravelTime"  
+				    android:layout_width="60dip" 
+					android:text="120"
+					android:inputType="number"
+	   				android:layout_height="wrap_content" />
+			</TableRow>
+				
+	        <TableRow
+	            android:id="@+id/TableRowMinPrepTime"
+    	        android:layout_width="wrap_content"
+        	    android:layout_height="wrap_content" >
+
+            	<TextView
+                	android:id="@+id/minPreTravelTimePrompt"
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="Minimum pre-travel time (mins):"
+                	android:textAppearance="?android:attr/textAppearanceSmall" />
+	            		    
+				<EditText
+				    android:id="@+id/minPreTravelTime"  
+				    android:layout_width="60dip" 
+					android:text="90"
+					android:inputType="number"
+	   				android:layout_height="wrap_content" />
+				
+			</TableRow>
+	        			
+	  </TableLayout>
+
+      <Button
+	    	android:id="@+id/btnCreateAlarm"
+	    	android:text="@string/create_alarm"
+	 	 	android:layout_width="match_parent" 
+	  		android:layout_below="@+id/travelTableLayout"
+			android:layout_height="wrap_content" />
+	    
+      <Button
+	    	android:id="@+id/btnPreferences"
+	    	android:text="@string/preferences"
+	 	 	android:layout_width="match_parent" 
+	  		android:layout_below="@+id/btnCreateAlarm"
+			android:layout_height="wrap_content" />
+    
+</RelativeLayout>

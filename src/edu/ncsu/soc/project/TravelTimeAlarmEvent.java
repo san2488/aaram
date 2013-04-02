@@ -6,11 +6,11 @@ import com.google.android.maps.GeoPoint;
 
 /** event with (car) travel from source to event destination
  */
-public class TravelAlarmEvent extends AlarmEvent {
+public class TravelTimeAlarmEvent extends AlarmEvent {
 	private String startLocation;     // start location for this event (location when alarm activates)
 	private String endLocation;       // end location for this event
 
-	public TravelAlarmEvent(String eventName, Date initialEventTime, Integer initialPrepTime,
+	public TravelTimeAlarmEvent(String eventName, Date initialEventTime, Integer initialPrepTime,
 			Integer minPrepTime, String startLocation, String endLocation) {
 		super(eventName, initialEventTime, initialPrepTime, minPrepTime);
 		this.startLocation = startLocation;
@@ -22,9 +22,17 @@ public class TravelAlarmEvent extends AlarmEvent {
 	
 	@Override
 	public void updateCurrentAlarmTime() {
-		Integer transitTime = 0;  // TODO get from transitAgent
-		// TODO add call to transitAgent that adjusts alarm time according to current travel time from startLocation to endLocation
-		this.currentAlarmTime = DateUtils.addMinutes(this.initialEventTime, (this.currentPrepTime + transitTime) * -1);  // subtract prep and transit time to set alarm
+		// get the current travel time
+		TravelTimeAgent agent = TravelTimeAgent.getInstance();
+		Integer currentTransitTime = agent.getTravelTime(startLocation, endLocation);			
+		// adjust the alarm time
+		Date oldAlarmTime = this.currentAlarmTime;
+		this.currentAlarmTime = DateUtils.addMinutes(this.initialEventTime, (currentTransitTime + this.currentPrepTime) * -1);  // subtract prep time to set alarm
+		
+		// if a time change more than 2 minutes then set reason
+		if (!DateUtils.datesRoughlyEqual(oldAlarmTime, this.currentAlarmTime, 1)) {
+			this.alarmChangeReason = "Travel time change";
+		}
 	}
 
 }

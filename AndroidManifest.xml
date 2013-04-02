@@ -43,7 +43,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>        
-        <activity android:name=".SetupTravelActivity"
+        <activity android:name="edu.ncsu.soc.project.SetupTravelTimeActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action 
