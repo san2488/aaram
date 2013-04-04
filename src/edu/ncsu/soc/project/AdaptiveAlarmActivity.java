@@ -221,7 +221,7 @@ public class AdaptiveAlarmActivity extends Activity {
 				}
 				// create a travel alarm event
 				if (requestCode == SETUP_TRAVEL_TIME_ACTIVITY) {                 
-					// extract return info and create a simple alarm
+					// extract return info and create a travel time alarm
 					int alarmTimeHour = extras.getInt("alarmTimeHour");
 					int alarmTimeMinute = extras.getInt("alarmTimeMinute");
 					String startAddress = extras.getString("startAddress");  
