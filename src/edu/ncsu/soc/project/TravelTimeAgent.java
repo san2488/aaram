@@ -91,7 +91,7 @@ public class TravelTimeAgent {
             httpclient.getConnectionManager().shutdown();
 		}
 		
-		Log.d(getClass().getSimpleName(), sb.toString());
+		//Log.d(getClass().getSimpleName(), sb.toString());
 		
 		/*
 		 Sample JSON output:  
@@ -102,12 +102,11 @@ public class TravelTimeAgent {
 		
 		try {
 			JSONObject jObject = new JSONObject(sb.toString());
-			JSONObject responseResult = jObject.getJSONObject("Response");  
-			JSONObject resourceSetsResult = responseResult.getJSONObject("ResourceSets");
-			JSONArray resourceSetResult = resourceSetsResult.getJSONArray("ResourceSet");
-			JSONObject resourceSetResult0 = resourceSetResult.getJSONObject(0);
-			JSONObject routeResult = resourceSetResult0.getJSONObject("Route");  
-			travelDurationString = routeResult.getString("TravelDuration");  
+			JSONArray resourceSetsResult = jObject.getJSONArray("resourceSets");
+			JSONObject resourceSetResult0 = resourceSetsResult.getJSONObject(0);
+			JSONArray resourcesResult = resourceSetResult0.getJSONArray("resources");  
+			JSONObject resourcesResult0 = resourcesResult.getJSONObject(0);
+			travelDurationString = resourcesResult0.getString("travelDuration");  
 			Log.d(getClass().getSimpleName(), "Travel duration: " + travelDurationString);
 			if (travelDurationString != null) {
 				travelDuration = Integer.valueOf(travelDurationString);

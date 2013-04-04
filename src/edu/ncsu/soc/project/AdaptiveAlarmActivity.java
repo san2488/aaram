@@ -230,6 +230,7 @@ public class AdaptiveAlarmActivity extends Activity {
 					int minTotalPrepTime = extras.getInt("minPrepTime");  
 					Date initDate = DateUtils.getNewDateFromTime(alarmTimeHour, alarmTimeMinute);
 					AlarmEvent aEvent = new TravelTimeAlarmEvent("Travel Time Alarm", initDate, totalPrepTime, minTotalPrepTime, startAddress, endAddress);
+					//aEvent.show();
 					am.addAlarmEvent(setupEventIndex, aEvent);   
 				}
 			}

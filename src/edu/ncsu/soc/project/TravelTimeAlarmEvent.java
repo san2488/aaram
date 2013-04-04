@@ -25,16 +25,19 @@ public class TravelTimeAlarmEvent extends AlarmEvent {
 		// get the current travel time
 		TravelTimeAgent agent = TravelTimeAgent.getInstance();
 		Integer currentTransitTime = agent.getTravelTime(startLocation, endLocation);
+		// normal create/update case
 		if (currentTransitTime != null) {
 			// adjust the alarm time
-			Date oldAlarmTime = this.currentAlarmTime;
+			Date oldAlarmTime = null;
+			if (this.currentAlarmTime != null) oldAlarmTime = this.currentAlarmTime;
 			this.currentAlarmTime = DateUtils.addMinutes(this.initialEventTime, (currentTransitTime + this.currentPrepTime) * -1);  // subtract prep time to set alarm
 
-			// if a time change more than 2 minutes then set reason
+			// if a time change more than a minute then set reason
 			if (!DateUtils.datesRoughlyEqual(oldAlarmTime, this.currentAlarmTime, 1)) {
 				this.alarmChangeReason = "Travel time change";
 			}
 		}
+		
 	}
 
 }

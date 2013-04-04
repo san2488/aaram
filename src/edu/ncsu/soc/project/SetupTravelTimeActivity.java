@@ -81,8 +81,8 @@ public class SetupTravelTimeActivity extends Activity {
             	TravelTimeAgent agent = TravelTimeAgent.getInstance();
             	Integer travelTime = agent.getTravelTime(startAddressString, endAddressString);
             	
-            	if ((travelTime != null) && (travelTime > 0)) {
-                    Toast.makeText(getBaseContext(), "Travel time=" + travelTime.toString(), Toast.LENGTH_LONG).show();
+            	if ((travelTime != null) && (travelTime >= 0)) {
+                    Toast.makeText(getBaseContext(), "Travel time=" + travelTime.toString() + " mins", Toast.LENGTH_LONG).show();
                     // now compute the total pre travel times
                     Integer totalPrepTime = Integer.valueOf(optPreTravelTimeString) + travelTime;
                     Integer minTotalPrepTime = Integer.valueOf(minPreTravelTimeString) + travelTime;
