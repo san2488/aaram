@@ -8,11 +8,16 @@ import javax.xml.datatype.Duration;
 
 import edu.ncsu.soc.project.UserActivityService.UserActivityBinder;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.IBinder;
+import android.provider.ContactsContract;
 import android.telephony.SmsManager;
 import android.util.Log;
 
@@ -63,8 +68,22 @@ public class UserAgent {
 	}
 	
 	public void takeSnoozeLimitAction(){
-		//TODO: Add bluetooth device detection
-		sendSMSMessage(contactNumber, "Hey! Please wake me up! --Sent via aaram");
+		ArrayList<BluetoothDevice> devices = UserBluetoothDetection.getInstance().getConnectedBluetoothDevices();
+		if(devices == null) {
+			sendSMSMessage(contactNumber, "Hey! I need your help. Please wake me up! --Sent via aaram");
+			return;
+		}
+		boolean sentOne = false;
+		for(BluetoothDevice device : devices) {
+			String phNum = getPhoneNumber(device.getName());
+			if(phNum != null)  {
+				sendSMSMessage(phNum, "Hey! Please wake me up! --Sent via aaram");
+				sentOne = true;
+			}
+		}
+		if(!sentOne) {
+			sendSMSMessage(contactNumber, "Hey! I need your help. Please wake me up! --Sent via aaram");
+		}
 	}
 
 	private void sendSMSMessage(String phoneNumber,String message)
@@ -77,7 +96,7 @@ public class UserAgent {
 	public Date getLastActivityTime() {
 		if(isUAServiceBound) {
 			lastActivityTime = uaService.getLastActivityTime();
-			Log.v(TAG, "Last Activity Time: " + DateUtils.toSimpleTime(lastActivityTime));
+			Log.i(TAG, "Last Activity Time: " + DateUtils.toSimpleTime(lastActivityTime));
 			return lastActivityTime;
 		}
 		else {
@@ -95,7 +114,7 @@ public class UserAgent {
         @Override
         public void onServiceConnected(ComponentName className,
                 IBinder service) {
-        	Log.v(TAG, "Connected to User Activity Service.");
+        	Log.i(TAG, "Connected to User Activity Service.");
             // We've bound to UserActivityBinder, cast the IBinder and get UserActivityService instance
         	UserActivityBinder binder = (UserActivityBinder) service;
             uaService = binder.getService();            
@@ -105,13 +124,13 @@ public class UserAgent {
 
         @Override
         public void onServiceDisconnected(ComponentName className) {
-        	Log.v(TAG, "Disconnected from User Activity Service.");
+        	Log.i(TAG, "Disconnected from User Activity Service.");
             isUAServiceBound = false;
         }
     };
     
     public void stopUserActivityService() {
-    	Log.v(TAG, "Stopping User Activity Service.");
+    	Log.i(TAG, "Stopping User Activity Service.");
 //    	if(isUAServiceBound) {
 //    		context.unbindService(mConnection);
 //    	}
@@ -121,4 +140,25 @@ public class UserAgent {
     public boolean isSleepDeprived() {
     	return new Date().getTime() - getLastActivityTime().getTime() < idealSleepTime;
     }
+    
+    public String getPhoneNumber(String name) {
+		ContentResolver contentResolver = context.getContentResolver();
+		Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+		String[] projection = new String[] { ContactsContract.CommonDataKinds.Phone.NUMBER };
+		String selection = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " = ?";
+		String[] selectionArguments = { name };
+		Cursor people = contentResolver.query(uri, projection, selection,
+				selectionArguments, null);
+
+		int indexNumber = people.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+		if (people != null) {
+			while (people.moveToNext()) {
+				String number = people.getString(indexNumber);
+				people.close();
+				return number;
+			}
+		}
+		people.close();
+		return null;
+	}
 }
