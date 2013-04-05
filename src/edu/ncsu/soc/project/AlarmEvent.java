@@ -121,10 +121,10 @@ public abstract class AlarmEvent {
 		Log.d(getClass().getSimpleName(), "    min prep time=" + this.minPrepTime);
 		
 		if (this.initialAlarmTime == null) Log.d(getClass().getSimpleName(), "    ** initial alarm time is null **"); 
-		else Log.d(getClass().getSimpleName(), "    initial alarm time=" + this.initialAlarmTime.toString());
+		else Log.d(getClass().getSimpleName(), "    initial alarm time=" + DateUtils.toDateTime1(this.initialAlarmTime) );
 		
 		if (this.currentAlarmTime == null) Log.d(getClass().getSimpleName(), "    ** current alarm time is null **"); 
-		else Log.d(getClass().getSimpleName(), "    current alarm time=" + this.currentAlarmTime.toString());
+		else Log.d(getClass().getSimpleName(), "    current alarm time=" + DateUtils.toDateTime1(this.currentAlarmTime) );
 		
 		Log.d(getClass().getSimpleName(), "    current prep time=" + this.currentPrepTime);
 				

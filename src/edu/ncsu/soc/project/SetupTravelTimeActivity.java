@@ -84,16 +84,17 @@ public class SetupTravelTimeActivity extends Activity {
             	if ((travelTime != null) && (travelTime >= 0)) {
                     Toast.makeText(getBaseContext(), "Travel time=" + travelTime.toString() + " mins", Toast.LENGTH_LONG).show();
                     // now compute the total pre travel times
-                    Integer totalPrepTime = Integer.valueOf(optPreTravelTimeString) + travelTime;
-                    Integer minTotalPrepTime = Integer.valueOf(minPreTravelTimeString) + travelTime;
+                    Integer prepTime = Integer.valueOf(optPreTravelTimeString);
+                    Integer minPrepTime = Integer.valueOf(minPreTravelTimeString);
                     // set return values
             		Intent i = getIntent();
             		i.putExtra("alarmTimeHour", timePicker1.getCurrentHour());  
             		i.putExtra("alarmTimeMinute", timePicker1.getCurrentMinute());  
             		i.putExtra("startAddress", startAddressString);  
             		i.putExtra("endAddress", endAddressString);  
-            		i.putExtra("prepTime", totalPrepTime);  
-            		i.putExtra("minPrepTime", minTotalPrepTime);  
+            		i.putExtra("prepTime", prepTime);  
+            		i.putExtra("minPrepTime", minPrepTime);  
+            		i.putExtra("travelTime", travelTime);  
             		setResult(RESULT_OK, i);
             		
             		finish();
