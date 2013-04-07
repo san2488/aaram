@@ -26,7 +26,7 @@ public class UserAgent {
 	
 	private static UserAgent instance;
 	
-	private final int defaultIdealSleepTime = 8;
+	private final String defaultIdealSleepTime = "8";
 	
 	private int idealSleepTime;														//Ideal sleep time for user
 
@@ -52,7 +52,7 @@ public class UserAgent {
 
 		SharedPreferences appPrefs = 
         		context.getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);    	
-        idealSleepTime = appPrefs.getInt("idealSleepTime", defaultIdealSleepTime);
+        idealSleepTime = Integer.parseInt(appPrefs.getString("idealSleepTime", defaultIdealSleepTime));
         contactNumber = appPrefs.getString("predefinedContact", defaultContactNumber);
         
 		Intent intent = new android.content.Intent(context, UserActivityService.class);	
