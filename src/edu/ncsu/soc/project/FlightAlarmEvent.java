@@ -34,7 +34,14 @@ public class FlightAlarmEvent extends AlarmEvent {
 		Date oldAlarmTime = this.currentAlarmTime;
 		this.currentAlarmTime = DateUtils.addMinutes(currentFlightTime, this.currentPrepTime * -1);  // subtract prep time to set alarm
 		
-		// if a time change more than 2 minutes then set reason
+
+		UserAgent ua = UserAgent.getInstance();
+		
+		// don't bother setting alarm to later time if user has had enough sleep
+		if((this.currentAlarmTime.after(oldAlarmTime) && !ua.isSleepDeprived())) {
+			this.currentAlarmTime = oldAlarmTime;
+		}
+			// if a time change more than 2 minutes then set reason
 		if (!DateUtils.datesRoughlyEqual(oldAlarmTime, this.currentAlarmTime, 1)) {
 			this.alarmChangeReason = "Flight time change";
 		}

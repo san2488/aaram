@@ -32,7 +32,11 @@ public class AlarmModel {
 		alarmEvents.add(3, null);
 	}
 
-	/** add a new alarm event to the arrraylist 
+	public int getDefaultSnoozeTime() {
+		return defaultSnoozeTime;
+	}
+	
+	/** add a new alarm event to the arraylist 
 	 * 
 	 */
 	public void addAlarmEvent(int alarmNo, AlarmEvent eAlarm) {
@@ -101,8 +105,6 @@ public class AlarmModel {
 			   //Log.d(getClass().getSimpleName(), "Null Alarm - no update");   // TODO fix output/display
 			}
 		}
-		UserAgent ua = UserAgent.getInstance();
-		sleepDeprived = ua.isSleepDeprived();
 	}
 	
 	/** hit snooze for all active alarms
