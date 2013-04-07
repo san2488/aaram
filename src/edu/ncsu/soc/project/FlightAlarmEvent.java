@@ -9,6 +9,8 @@ public class FlightAlarmEvent extends AlarmEvent {
 	private String flightNumber = null;         // airline/flight number string, eg DL400
     private Boolean useActualAgent = true;    // if true use calls to flight service otherwise generate a response for debug
     
+    private final String TAG = "FlightAlarmEvent";
+    
 	public FlightAlarmEvent(String eventName, Date initialFlightTime,
 			Integer initialPrepTime, Integer minPrepTime, String flightNumber) {
 		super(eventName, initialFlightTime, initialPrepTime, minPrepTime);  // set initialEventTime to initialFlightTime
@@ -39,6 +41,7 @@ public class FlightAlarmEvent extends AlarmEvent {
 
 		// don't bother setting alarm to later time if user has had enough sleep
 		if((this.currentAlarmTime.after(oldAlarmTime) && !ua.isSleepDeprived())) {
+			Log.i(TAG, "No need to delay alarm. Has had enough sleep.");
 			this.currentAlarmTime = oldAlarmTime;
 		}
 			// if a time change more than 2 minutes then set reason

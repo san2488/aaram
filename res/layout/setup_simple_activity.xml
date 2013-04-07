@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/LightSkyBlue"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
     tools:context=".MainActivity" >
 
     <TextView
@@ -83,5 +85,15 @@
           android:layout_below="@+id/tableLayout1"
           android:layout_marginTop="20dp"
           android:text="@string/create_alarm" />
+
+      <TextView
+          android:id="@+id/textView2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignBottom="@+id/tableLayout1"
+          android:layout_marginBottom="16dp"
+          android:layout_toRightOf="@+id/tableLayout1"
+          android:text="mins"
+          android:textAppearance="?android:attr/textAppearanceSmall" />
     
 </RelativeLayout>

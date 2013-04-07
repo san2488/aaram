@@ -14,6 +14,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
@@ -25,19 +26,19 @@ public class UserAgent {
 	
 	private static UserAgent instance;
 	
-	private long idealSleepTime;														//Ideal sleep time for user
+	private final int defaultIdealSleepTime = 8;
+	
+	private int idealSleepTime;														//Ideal sleep time for user
 
-	private long getIdealSleepTime() {
+	private int getIdealSleepTime() {
 		return idealSleepTime;
 	}
 
 	private static Date lastActivityTime = new Date();
 	
-	private void setIdealSleepTime(long sleepTime) {
-		idealSleepTime = sleepTime;
-	}
+	private final String defaultContactNumber = "555-123-4567";
 	
-	private String contactNumber = "555-123-4567";
+	private String contactNumber = defaultContactNumber;
 	
 	private static Context context;
 
@@ -48,10 +49,12 @@ public class UserAgent {
 	private static final String TAG = "UserAgent";
 	
 	private UserAgent() {
-		Date now = new Date();
-		Date eightHrsFromNow = DateUtils.addHours(now, 8);								//Set default ideal sleep time to 8 hours
-		idealSleepTime = eightHrsFromNow.getTime() - now.getTime();
 
+		SharedPreferences appPrefs = 
+        		context.getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);    	
+        idealSleepTime = appPrefs.getInt("idealSleepTime", defaultIdealSleepTime);
+        contactNumber = appPrefs.getString("predefinedContact", defaultContactNumber);
+        
 		Intent intent = new android.content.Intent(context, UserActivityService.class);	
 		context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 	}
@@ -68,6 +71,11 @@ public class UserAgent {
 	}
 	
 	public void takeSnoozeLimitAction(){
+		// Yuck! but need a quick fix to update time from preferences
+		SharedPreferences appPrefs = 
+        		context.getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);
+        contactNumber = appPrefs.getString("predefinedContact", defaultContactNumber);
+		
 		ArrayList<BluetoothDevice> devices = UserBluetoothDetection.getInstance().getConnectedBluetoothDevices();
 		if(devices == null) {
 			sendSMSMessage(contactNumber, "Hey! I need your help. Please wake me up! --Sent via aaram");
@@ -100,7 +108,7 @@ public class UserAgent {
 			return lastActivityTime;
 		}
 		else {
-			return lastActivityTime = DateUtils.addHours(new Date(), 8);		//TODO: This is a hack. Works for now
+			return lastActivityTime = DateUtils.addHours(new Date(), -8);		//TODO: This is a hack. Works for now
 			
 //			Intent intent = new android.content.Intent(context, UserActivityService.class);	
 //			context.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -138,7 +146,7 @@ public class UserAgent {
     }
     
     public boolean isSleepDeprived() {
-    	return new Date().getTime() - getLastActivityTime().getTime() < idealSleepTime;
+    	return DateUtils.addHours(getLastActivityTime(), getIdealSleepTime()).after(new Date()) ;
     }
     
     public String getPhoneNumber(String name) {

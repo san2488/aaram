@@ -17,7 +17,19 @@
             android:summary="How often agents update alarms"
             android:title="Update frequency (mins)"
             android:key="eventTimerPeriod" 
-            android:name="EditText"/>  
+            android:name="EditText"
+            android:numeric="integer"/>
+        <EditTextPreference 
+            android:key="predefinedContact" 
+            android:summary="Contact number of a person who can wake you up." 
+            android:title="Emergency Contact" android:defaultValue="555-123-4567"
+            android:numeric="integer"/>
+        <EditTextPreference 
+            android:key="idealSleepTime" 
+            android:defaultValue="8" 
+            android:title="Ideal Sleep Time" 
+            android:summary="Hours you would generally like to sleep."
+            android:numeric="integer"/>  
     </PreferenceCategory>  
  
 </PreferenceScreen>

@@ -17,7 +17,7 @@ General features of the adaptive alarm application:
 - Each alarm stores an optimum preparation time and a minimum preparation time.
   Hitting snooze reduces the available preparation time for an event and is allowed
   until the minimum preparation time is hit. If the minimum time is reached,
-  snooze is inhibited and messages to wake up user are sent via sms or available bluetooth. 
+  snooze is inhibited and messages to wake up user are sent via sms
   
 Context information used:
 - Flight time information via Flightaware web service
@@ -34,9 +34,10 @@ at each talk. But he underestimates Chicago's traffic and leaves very little tim
 travel.
 
   * Context: A travel time agent checks the estimated travel time to each event based 
-  on traffic conditions and adjusts the alarm times periodically (including user pre-travel   
-  preparation times set up when the alarm was scheduled). This agent use a free REST API 
-  provided by Bing Maps to get traffic information. An API key is built into the agent. 
+  on traffic conditions and adjusts the alarm times periodically (including user pre-
+  travel preparation times set up when the alarm was scheduled). This agent use a free   
+  REST API provided by Bing Maps to get traffic information. An API key is built into the  
+  agent. 
 
 Scenario 2. A professor who has spent all night preparing a presentation, has an 
 early morning flight to a conference. But the flight is delayed by two hours. He ends 
@@ -45,8 +46,12 @@ up losing sleep unnecessarily since the alarm is set for too early now.
   * Context: A flight agent continually checks the departure time of upcoming flights
     and updates the alarm time (including user-specified pre-flight time setup when
     the alarm was scheduled). This agent uses the Flightaware XML commercial API which
-    requires a paying account. You must set the account information via the Preferences
-    button. Please contact mwroda@ncsu.edu for the account information to test this out.
+    requires a paying account. The alarm also tracks when the user was last awake and 
+    delays the alarm only if the user has not had enough sleep. Screen-unlocking/
+    Accelerometer is used to find last activity time. Ideal sleep time can be 
+    set via preferences. Note: You must set the account information 
+    via the Preferences button. Please contact mwroda@ncsu.edu for the account information 
+    to test this out.
 
 Scenario 3. A student living in a Hostel sets the alarm before an exam, but ends up 
 repeatedly snoozing the alarm and reached late for the exam. This would hardly have
@@ -56,8 +61,9 @@ happened if there was somebody around to make sure she wakes up
     snooze button on the alarm has been activated over limit. The agent uses bluetooth
     to locate people nearby and cross-references them with the contact information in 
     the phone (display name must be same as bluetooth name). Note, this feature 
-    requires an actual bluetooth-capable device; when running on the emulator, it will
-    SMS text a predefined number 555-123-4567.
+    requires an actual bluetooth-capable device; when running on the emulator or when no 
+    user is found nearby, it will SMS text a predefined number which can be set through   
+    preferences.
 
 Note: The fourth scenario (student wakes up late to catch a delayed bus) is not supported
     currently as query of bus transit information is not included.  However, this

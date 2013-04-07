@@ -2,6 +2,8 @@ package edu.ncsu.soc.project;
 
 import java.util.Date;
 
+import android.util.Log;
+
 import com.google.android.maps.GeoPoint;
 
 /** event with (car) travel from source to event destination
@@ -33,13 +35,6 @@ public class TravelTimeAlarmEvent extends AlarmEvent {
 			if (this.currentAlarmTime != null) oldAlarmTime = this.currentAlarmTime;
 			//this.currentPrepTime
 			this.currentAlarmTime = DateUtils.addMinutes(this.initialEventTime, (currentTransitTime + this.currentPrepTime) * -1);  // subtract prep time to set alarm
-
-			UserAgent ua = UserAgent.getInstance();
-
-			// don't bother setting alarm to later time if user has had enough sleep
-			if((this.currentAlarmTime.after(oldAlarmTime) && !ua.isSleepDeprived())) {
-				this.currentAlarmTime = oldAlarmTime;
-			}
 			
 			// if a time change more than a minute then set reason
 			if (!DateUtils.datesRoughlyEqual(oldAlarmTime, this.currentAlarmTime, 1)) {
