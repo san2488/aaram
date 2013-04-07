@@ -67,33 +67,34 @@ public class SetupTravelTimeActivity extends Activity {
                     Toast.makeText(getBaseContext(), "Enter a pre-travel time." , Toast.LENGTH_LONG).show(); return;
             	}
             	if (startAddressString==null) {
-                    Toast.makeText(getBaseContext(), "Enter a pre-travel time." , Toast.LENGTH_LONG).show(); return;
+                    Toast.makeText(getBaseContext(), "Enter a start address." , Toast.LENGTH_LONG).show(); return;
             	}
             	if (endAddressString==null) {
-                    Toast.makeText(getBaseContext(), "Enter a pre-travel time." , Toast.LENGTH_LONG).show(); return;
+                    Toast.makeText(getBaseContext(), "Enter an end address." , Toast.LENGTH_LONG).show(); return;
             	}
         		// check for valid time
             	if ((timePicker1.getCurrentHour()==null) || (timePicker1.getCurrentMinute()==null)) {
                     Toast.makeText(getBaseContext(), "Select an alarm time" , Toast.LENGTH_LONG).show();return;	
             	}
 
-            	// get the travel time
+            	// get the travel time in seconds
             	TravelTimeAgent agent = TravelTimeAgent.getInstance();
             	Integer travelTime = agent.getTravelTime(startAddressString, endAddressString);
             	
-            	if (travelTime != null) {
-                    Toast.makeText(getBaseContext(), "Travel time=" + travelTime.toString(), Toast.LENGTH_LONG).show();
+            	if ((travelTime != null) && (travelTime >= 0)) {
+                    Toast.makeText(getBaseContext(), "Travel time=" + travelTime.toString() + " mins", Toast.LENGTH_LONG).show();
                     // now compute the total pre travel times
-                    Integer totalPrepTime = Integer.valueOf(optPreTravelTimeString) + travelTime;
-                    Integer minTotalPrepTime = Integer.valueOf(minPreTravelTimeString) + travelTime;
+                    Integer prepTime = Integer.valueOf(optPreTravelTimeString);
+                    Integer minPrepTime = Integer.valueOf(minPreTravelTimeString);
                     // set return values
             		Intent i = getIntent();
             		i.putExtra("alarmTimeHour", timePicker1.getCurrentHour());  
             		i.putExtra("alarmTimeMinute", timePicker1.getCurrentMinute());  
             		i.putExtra("startAddress", startAddressString);  
             		i.putExtra("endAddress", endAddressString);  
-            		i.putExtra("prepTime", totalPrepTime);  
-            		i.putExtra("minPrepTime", minTotalPrepTime);  
+            		i.putExtra("prepTime", prepTime);  
+            		i.putExtra("minPrepTime", minPrepTime);  
+            		i.putExtra("travelTime", travelTime);  
             		setResult(RESULT_OK, i);
             		
             		finish();

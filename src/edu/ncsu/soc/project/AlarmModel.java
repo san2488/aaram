@@ -130,5 +130,19 @@ public class AlarmModel {
 		    }
 		}
 	}
+	
+	/** show alarm state in log
+	 * 
+	 */
+	public void showAlarmState() {
+		Iterator<AlarmEvent> iter = alarmEvents.iterator();
+		Log.d(getClass().getSimpleName(), "----- alarm state");   // TODO 
+		while (iter.hasNext()) {
+			AlarmEvent alarm = iter.next();
+			if (alarm != null) {
+			   Log.d(getClass().getSimpleName(), "Alarm " + alarm.getEventName() + ", active=" + alarm.alarmActive());   
+			}
+		}
+	}
 
 }

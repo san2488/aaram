@@ -101,7 +101,7 @@
 				<EditText
 				    android:id="@+id/optPreTravelTime"  
 				    android:layout_width="60dip" 
-					android:text="120"
+					android:text="40"
 					android:inputType="number"
 	   				android:layout_height="wrap_content" />
 			</TableRow>
@@ -121,7 +121,7 @@
 				<EditText
 				    android:id="@+id/minPreTravelTime"  
 				    android:layout_width="60dip" 
-					android:text="90"
+					android:text="20"
 					android:inputType="number"
 	   				android:layout_height="wrap_content" />
 				

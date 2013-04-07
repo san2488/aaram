@@ -107,6 +107,8 @@ public class AdaptiveAlarmActivity extends Activity {
 		    public void handleMessage (Message msg) {
 		        // update the displayed time
 				if (msg.what == UI_TIMER_MSG) {
+					//am.showAlarmState();
+					
 					textView1.setText("Current time is " + DateUtils.toSimpleTime(new Date()));  // update displayed current time
 					
 					textViewSetTime1.setText(am.getCurrentAlarmTimeString(1));  // update current time for alarm 1
@@ -221,15 +223,18 @@ public class AdaptiveAlarmActivity extends Activity {
 				}
 				// create a travel alarm event
 				if (requestCode == SETUP_TRAVEL_TIME_ACTIVITY) {                 
-					// extract return info and create a simple alarm
+					// extract return info and create a travel time alarm
 					int alarmTimeHour = extras.getInt("alarmTimeHour");
 					int alarmTimeMinute = extras.getInt("alarmTimeMinute");
 					String startAddress = extras.getString("startAddress");  
 					String endAddress = extras.getString("endAddress");  
 					int totalPrepTime = extras.getInt("prepTime");  
 					int minTotalPrepTime = extras.getInt("minPrepTime");  
+					int initialTravelTime = extras.getInt("travelTime");  
 					Date initDate = DateUtils.getNewDateFromTime(alarmTimeHour, alarmTimeMinute);
-					AlarmEvent aEvent = new TravelTimeAlarmEvent("Travel Time Alarm", initDate, totalPrepTime, minTotalPrepTime, startAddress, endAddress);
+					AlarmEvent aEvent = new TravelTimeAlarmEvent("Travel Time Alarm", initDate, totalPrepTime, minTotalPrepTime, 
+							startAddress, endAddress, initialTravelTime);
+					//aEvent.show();
 					am.addAlarmEvent(setupEventIndex, aEvent);   
 				}
 			}

@@ -2,6 +2,8 @@ package edu.ncsu.soc.project;
 
 import java.util.Date;
 
+import android.util.Log;
+
 /**
  * context aware alarm event    
  * @author snellenbach
@@ -31,6 +33,8 @@ public abstract class AlarmEvent {
 		this.initialPrepTime = initialPrepTime;
 		this.minPrepTime = minPrepTime;
 		
+		this.currentAlarmTime = null;               // this will be set in child constructors
+		this.initialAlarmTime = null;               // this will be set in child constructors
 		this.currentPrepTime = initialPrepTime;     // prep time starts with the optimal value
 		this.lastUpdateTime = new Date();           // last update time is init time
 		this.alarmChangeReason = "";                // no update so far
@@ -106,5 +110,24 @@ public abstract class AlarmEvent {
 			ua.takeSnoozeLimitAction();
 		}
 	}
+	
+	/** create a new adaptive alarm event
+	 */
+	public void show() {
+		Log.d(getClass().getSimpleName(), "--- Alarm event, name=" + this.eventName);  
+		
+		Log.d(getClass().getSimpleName(), "    initial event time=" + this.initialEventTime.toString());
+		Log.d(getClass().getSimpleName(), "    initial prep time=" + this.initialPrepTime);
+		Log.d(getClass().getSimpleName(), "    min prep time=" + this.minPrepTime);
+		
+		if (this.initialAlarmTime == null) Log.d(getClass().getSimpleName(), "    ** initial alarm time is null **"); 
+		else Log.d(getClass().getSimpleName(), "    initial alarm time=" + DateUtils.toDateTime1(this.initialAlarmTime) );
+		
+		if (this.currentAlarmTime == null) Log.d(getClass().getSimpleName(), "    ** current alarm time is null **"); 
+		else Log.d(getClass().getSimpleName(), "    current alarm time=" + DateUtils.toDateTime1(this.currentAlarmTime) );
+		
+		Log.d(getClass().getSimpleName(), "    current prep time=" + this.currentPrepTime);
+				
+	}	
 
 }
