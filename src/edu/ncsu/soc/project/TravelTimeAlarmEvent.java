@@ -34,6 +34,13 @@ public class TravelTimeAlarmEvent extends AlarmEvent {
 			//this.currentPrepTime
 			this.currentAlarmTime = DateUtils.addMinutes(this.initialEventTime, (currentTransitTime + this.currentPrepTime) * -1);  // subtract prep time to set alarm
 
+			UserAgent ua = UserAgent.getInstance();
+
+			// don't bother setting alarm to later time if user has had enough sleep
+			if((this.currentAlarmTime.after(oldAlarmTime) && !ua.isSleepDeprived())) {
+				this.currentAlarmTime = oldAlarmTime;
+			}
+			
 			// if a time change more than a minute then set reason
 			if (!DateUtils.datesRoughlyEqual(oldAlarmTime, this.currentAlarmTime, 1)) {
 				this.alarmChangeReason = "Travel time change";

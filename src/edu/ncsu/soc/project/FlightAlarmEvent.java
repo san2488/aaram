@@ -36,7 +36,7 @@ public class FlightAlarmEvent extends AlarmEvent {
 		
 
 		UserAgent ua = UserAgent.getInstance();
-		
+
 		// don't bother setting alarm to later time if user has had enough sleep
 		if((this.currentAlarmTime.after(oldAlarmTime) && !ua.isSleepDeprived())) {
 			this.currentAlarmTime = oldAlarmTime;
