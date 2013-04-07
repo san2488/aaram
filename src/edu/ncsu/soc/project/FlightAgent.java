@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -51,12 +53,13 @@ public class FlightAgent {
 		FlightAgent.context = context;
 	}
 
-	public Date getDepartureTime(String ident) 
+	public Date getDepartureTime(String ident, int year, int month, int dayOfMonth) 
 	{
     	SharedPreferences appPrefs = 
         		context.getSharedPreferences("edu.ncsu.soc.project_preferences", Context.MODE_PRIVATE);    	
         String username = appPrefs.getString("flightawareUsername", "");
         String apiKey = appPrefs.getString("flightawareApiKey", "");
+        String airport = appPrefs.getString("airport", "RDU");
 
         if (username == null || username.length() == 0 || apiKey == null || apiKey.length() == 0)
         	return null;
@@ -89,7 +92,7 @@ public class FlightAgent {
 		};
 		
 		httpclient.addRequestInterceptor(preemptiveAuth, 0);
-		HttpGet httpget = new HttpGet(fxml_url + "FlightInfoEx?ident="+ident+"&howMany=1&offset=0");
+		HttpGet httpget = new HttpGet(fxml_url + "FlightInfoEx?ident="+ident+"&howMany=25&offset=0");
         
         Log.d(getClass().getSimpleName(), "executing request: " + targetHost + httpget.getRequestLine());
         
@@ -117,7 +120,7 @@ public class FlightAgent {
             httpclient.getConnectionManager().shutdown();
 		}
 		
-//		Log.d(getClass().getSimpleName(), sb.toString());
+		Log.d(getClass().getSimpleName(), sb.toString());
 		
 		/*
 		 Sample JSON output:
@@ -128,37 +131,52 @@ public class FlightAgent {
 		int estimatedArrivalTime = 0;
 		int actualDepartureTime = 0;
 		String filed_ete = null;
+		Date departureTime = null;
 		
 		try {
 			JSONObject jObject = new JSONObject(sb.toString());
 			JSONObject flightInfoExResult = jObject.getJSONObject("FlightInfoExResult");
 			JSONArray flights = flightInfoExResult.getJSONArray("flights");
-			JSONObject flight = flights.getJSONObject(0);
-			filed_ete = flight.getString("filed_ete");
-			estimatedArrivalTime = flight.getInt("estimatedarrivaltime");
-			actualDepartureTime = flight.getInt("actualdeparturetime");
+			for (int i=0; i < flights.length(); i++) {
+				JSONObject flight = flights.getJSONObject(i);
+				
+				String origin = flight.getString("origin");
+				if (!origin.equals("K"+airport.toUpperCase()))
+					continue;
+				
+				filed_ete = flight.getString("filed_ete");
+				estimatedArrivalTime = flight.getInt("estimatedarrivaltime");
+				actualDepartureTime = flight.getInt("actualdeparturetime");
+			
+				if (actualDepartureTime > 0) {
+					// flight already left!
+					departureTime = new Date((((long)actualDepartureTime)*1000));			
+					Log.d(getClass().getSimpleName(), "Actual departure time: " + departureTime.toString());
+				}
+				else if (estimatedArrivalTime > 0 && filed_ete != null && filed_ete.indexOf(":") == 2) 
+				{
+					// estimate the departure time by taking the estimated arrival time minus the estimated time enroute
+					int filed_ete_hrs = Integer.parseInt(filed_ete.substring(0,2));
+					int filed_ete_mins = Integer.parseInt(filed_ete.substring(3,5));
+					
+					departureTime = new Date((((long)estimatedArrivalTime)*1000) - (filed_ete_hrs*60*60*1000) - (filed_ete_mins*60*1000));
+					Log.d(getClass().getSimpleName(), "Estimated departure time: " + departureTime.toString());
+				}
+				
+			    Calendar cal = new GregorianCalendar();
+			    cal.setTime(departureTime);
+			    
+				if (cal.get(Calendar.YEAR) == year && cal.get(Calendar.MONTH) == month && cal.get(Calendar.DAY_OF_MONTH) == dayOfMonth) {
+					Log.d(getClass().getSimpleName(), "Departure time: " + departureTime.toString());
+					return departureTime;
+				}
+			}
 		}
 		catch (JSONException e) {
 			e.printStackTrace();
 			return null;
 		}
 		
-		Date departureTime = null;
-		if (actualDepartureTime > 0) {
-			// flight already left!
-			departureTime = new Date((((long)actualDepartureTime)*1000));			
-			Log.d(getClass().getSimpleName(), "Actual departure time: " + departureTime.toString());
-		}
-		else if (estimatedArrivalTime > 0 && filed_ete != null && filed_ete.indexOf(":") == 2) 
-		{
-			// estimate the departure time by taking the estimated arrival time minus the estimated time enroute
-			int filed_ete_hrs = Integer.parseInt(filed_ete.substring(0,2));
-			int filed_ete_mins = Integer.parseInt(filed_ete.substring(3,5));
-			
-			departureTime = new Date((((long)estimatedArrivalTime)*1000) - (filed_ete_hrs*60*60*1000) - (filed_ete_mins*60*1000));
-			Log.d(getClass().getSimpleName(), "Estimated departure time: " + departureTime.toString());
-		}
-
-		return departureTime;
+		return null;
 	}
 }

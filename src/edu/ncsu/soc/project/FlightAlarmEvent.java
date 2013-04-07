@@ -1,6 +1,8 @@
 package edu.ncsu.soc.project;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -25,7 +27,9 @@ public class FlightAlarmEvent extends AlarmEvent {
 		Date currentFlightTime;
 		if (useActualAgent) {
 			FlightAgent agent = FlightAgent.getInstance();
-			currentFlightTime = agent.getDepartureTime(flightNumber);			
+		    Calendar cal = new GregorianCalendar();
+		    cal.setTime(this.initialEventTime);			
+			currentFlightTime = agent.getDepartureTime(flightNumber, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));			
 		}
 		else {
 		    currentFlightTime = DateUtils.addHours(new Date(), 4);  // for debug, just add 4 hrs to the current time
@@ -38,9 +42,9 @@ public class FlightAlarmEvent extends AlarmEvent {
 		
 
 		UserAgent ua = UserAgent.getInstance();
-
+		
 		// don't bother setting alarm to later time if user has had enough sleep
-		if((this.currentAlarmTime.after(oldAlarmTime) && !ua.isSleepDeprived())) {
+		if(oldAlarmTime != null && (this.currentAlarmTime.after(oldAlarmTime) && !ua.isSleepDeprived())) {
 			Log.i(TAG, "No need to delay alarm. Has had enough sleep.");
 			this.currentAlarmTime = oldAlarmTime;
 		}

@@ -14,6 +14,12 @@
             android:key="flightawareApiKey" 
             android:name="EditText"/>           
         <EditTextPreference
+            android:summary="Enter your 3-digit airport code"
+            android:title="Home Airport"
+            android:defaultValue="RDU" 
+            android:key="airport" 
+            android:name="EditText"/>           
+        <EditTextPreference
             android:summary="How often agents update alarms"
             android:title="Update frequency (mins)"
             android:key="eventTimerPeriod" 

@@ -208,6 +208,7 @@ public class AdaptiveAlarmActivity extends Activity {
 					String flightNumber = extras.getString("flightNumber");  
 					int prepTime = extras.getInt("prepTime");  
 					int minPrepTime = extras.getInt("minPrepTime");  
+					Log.d(getClass().getSimpleName(), "flightTimeDay: " + flightTimeDay);   
 					// recreate the flight time
 					Date flightTime = new Date();
 					flightTime.setYear(flightTimeYear); 

@@ -62,10 +62,9 @@ public class SetupFlightActivity extends Activity {
             		String flightNumberString = flightNumber.getText().toString();
             		int prepTime = Integer.valueOf(optPreflightTime.getText().toString());
             		int minPrepTime = Integer.valueOf(minPreflightTime.getText().toString());
-            		
             		// get flight time from agent
                 	//Date flightTime = DateUtils.addHours(new Date(), 4);  // TODO debug value
-                	Date flightTime = agent.getDepartureTime(flightNumberString);
+                	Date flightTime = agent.getDepartureTime(flightNumberString, datePicker1.getYear(), datePicker1.getMonth(), datePicker1.getDayOfMonth());
 					//Log.d(getClass().getSimpleName(), "--- sending date=" + flightTime.toString());   
 
                 	// if this is a valid flight so return with info
