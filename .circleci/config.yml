@@ -1,0 +1,34 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/node:14
+    steps:
+      - checkout
+
+      - run:
+          name: CodeGuru Security
+          command: |
+            aws codeguru-reviewer-batch associate-repository \
+              --repository "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" \
+              --provider-type GitHub
+
+            aws codeguru-reviewer-batch create-code-review \
+              --name "CodeGuru Security Review" \
+              --repository "https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" \
+              --type Security
+
+      - run:
+          name: Print findings
+          command: |
+            ls -l
+            cat codeguru-security-results.sarif.json
+
+      - run:
+          name: Upload result
+          command: |
+            curl -X POST \
+              -H "Authorization: Token $CIRCLECI_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{"branch": "$CIRCLE_BRANCH", "parameters": {"sarif_file": "codeguru-security-results.sarif.json"}}' \
+              https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pipeline
